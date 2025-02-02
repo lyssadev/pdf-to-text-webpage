@@ -15,6 +15,11 @@
         <header>
             <h1>PDF to Text Converter</h1>
             <p>Transform your PDF documents into editable text instantly</p>
+            <div class="features">
+                <span><i class="fas fa-lock"></i> Secure & Private</span>
+                <span><i class="fas fa-bolt"></i> Instant Conversion</span>
+                <span><i class="fas fa-cloud-upload-alt"></i> No Upload Required</span>
+            </div>
         </header>
 
         <main>
@@ -57,6 +62,32 @@
                     </button>
                 </div>
             </div>
+
+            <div class="features-section">
+                <h2>Why Choose Our PDF to Text Converter?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>100% Secure</h3>
+                        <p>All processing happens in your browser. No files are uploaded to any server.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <h3>Lightning Fast</h3>
+                        <p>Convert your PDFs to text in seconds with our optimized engine.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>High Accuracy</h3>
+                        <p>Advanced PDF.js technology ensures accurate text extraction.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h3>Mobile Friendly</h3>
+                        <p>Works perfectly on all devices, from phones to desktops.</p>
+                    </div>
+                </div>
+            </div>
         </main>
 
         <footer>
@@ -64,9 +95,41 @@
             <div class="footer-links">
                 <a href="#" class="footer-link">Privacy Policy</a>
                 <a href="#" class="footer-link">Terms of Use</a>
-                <a href="#" class="footer-link">Contact</a>
+                <a href="#" id="contact-link" class="footer-link">Contact</a>
             </div>
         </footer>
+    </div>
+
+    <!-- Contact Modal -->
+    <div class="modal-backdrop" id="contact-modal">
+        <div class="modal">
+            <button class="modal-close" id="modal-close">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2>Contact Us</h2>
+            <form class="contact-form" id="contact-form">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" required placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" name="subject" required placeholder="How can we help?">
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" required placeholder="Your message here..."></textarea>
+                </div>
+                <button type="submit" class="button">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Send Message</span>
+                </button>
+            </form>
+        </div>
     </div>
 
     <div id="toast" class="toast"></div>
