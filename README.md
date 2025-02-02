@@ -70,7 +70,7 @@ A modern, feature-rich web application that converts PDF files to text with high
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/pdf-to-text-converter.git
+   git clone https://github.com/lyssadev/pdf-to-text-webpage.git
    ```
 
 2. Open `index.html` in a modern web browser
@@ -181,4 +181,4 @@ Need help? Have questions? Use our contact form or create an issue in the reposi
 
 ---
 
-Made with ❤️ by [Your Name] 
+Made with ❤️ by lyssadev 
