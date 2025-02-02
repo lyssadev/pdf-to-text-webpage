@@ -7,38 +7,69 @@
     <link rel="stylesheet" href="styles.css">
     <!-- Include PDF.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- Add Font Awesome for better icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>PDF to Text Converter</h1>
-            <p>Upload your PDF file and convert it to text instantly</p>
+            <p>Transform your PDF documents into editable text instantly</p>
         </header>
 
         <main>
             <div class="upload-section">
                 <label for="pdf-file" class="upload-label">
-                    <span class="upload-icon">📄</span>
-                    <span>Choose a PDF file or drag it here</span>
+                    <i class="fas fa-file-pdf upload-icon"></i>
+                    <span class="upload-text">Choose a PDF file or drag it here</span>
+                    <span class="upload-hint">Maximum file size: 10MB</span>
                 </label>
                 <input type="file" id="pdf-file" accept=".pdf" class="file-input">
             </div>
 
-            <div class="progress-bar" id="progress-bar">
-                <div class="progress" id="progress"></div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+                <div class="progress-text" id="progress-text"></div>
             </div>
 
             <div class="result-section">
-                <textarea id="output-text" readonly placeholder="Converted text will appear here..."></textarea>
-                <button id="copy-button" class="button">Copy Text</button>
-                <button id="download-button" class="button">Download Text</button>
+                <div class="result-header">
+                    <div class="file-info" id="file-info"></div>
+                    <div class="page-counter" id="page-counter"></div>
+                </div>
+                
+                <textarea id="output-text" readonly placeholder="Your converted text will appear here..."></textarea>
+                
+                <div class="button-group">
+                    <button id="copy-button" class="button">
+                        <i class="fas fa-copy"></i>
+                        <span>Copy Text</span>
+                    </button>
+                    <button id="download-button" class="button">
+                        <i class="fas fa-download"></i>
+                        <span>Download Text</span>
+                    </button>
+                    <button id="clear-button" class="button button-secondary">
+                        <i class="fas fa-trash"></i>
+                        <span>Clear</span>
+                    </button>
+                </div>
             </div>
         </main>
 
         <footer>
-            <p>© 2024 PDF to Text Converter. All rights reserved.</p>
+            <p>© 2024 PDF to Text Converter • Secure & Private • No Upload Required</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Use</a>
+                <a href="#" class="footer-link">Contact</a>
+            </div>
         </footer>
     </div>
+
+    <div id="toast" class="toast"></div>
     <script src="script.js"></script>
 </body>
 </html> 
