@@ -3,20 +3,28 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 
 // DOM Elements
 const fileInput = document.getElementById('pdf-file');
+const dropzone = document.getElementById('dropzone');
 const outputText = document.getElementById('output-text');
-const copyButton = document.getElementById('copy-button');
-const downloadButton = document.getElementById('download-button');
-const clearButton = document.getElementById('clear-button');
 const progressBar = document.getElementById('progress-bar');
-const progress = document.getElementById('progress');
 const progressText = document.getElementById('progress-text');
 const fileInfo = document.getElementById('file-info');
 const pageCounter = document.getElementById('page-counter');
-const toast = document.getElementById('toast');
+const copyButton = document.getElementById('copy-button');
+const downloadButton = document.getElementById('download-button');
+const clearButton = document.getElementById('clear-button');
 const contactLink = document.getElementById('contact-link');
 const contactModal = document.getElementById('contact-modal');
 const modalClose = document.getElementById('modal-close');
 const contactForm = document.getElementById('contact-form');
+const toast = document.getElementById('toast');
+const loadingSpinner = document.getElementById('loading-spinner');
+const themeSwitch = document.getElementById('theme-switch');
+const prevPageBtn = document.getElementById('prev-page');
+const nextPageBtn = document.getElementById('next-page');
+const zoomInBtn = document.getElementById('zoom-in');
+const zoomOutBtn = document.getElementById('zoom-out');
+const wordCountBtn = document.getElementById('word-count');
+const exportButton = document.getElementById('export-button');
 
 // Constants
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -27,288 +35,296 @@ const PDF_OPTIONS = {
     standardFontDataUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/standard_fonts/'
 };
 
-// State management
-let currentPdfDocument = null;
-let isProcessing = false;
+// State
+let currentPdf = null;
+let currentPage = 1;
+let totalPages = 0;
+let extractedText = '';
+let fontSize = 16;
 
-// Contact modal functionality
-contactLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    contactModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+// Theme Management
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+}
+
+// Initialize AOS
+document.addEventListener('DOMContentLoaded', function() {
+    AOS.init({
+        duration: 800,
+        once: true,
+        offset: 100
+    });
+    initTheme();
 });
 
-modalClose.addEventListener('click', () => {
-    contactModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-});
-
-contactModal.addEventListener('click', (e) => {
-    if (e.target === contactModal) {
-        contactModal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-});
-
-contactForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(contactForm);
-    const data = Object.fromEntries(formData.entries());
+// File Upload Handling
+function handleFile(file) {
+    if (!file) return;
     
-    // Simulate form submission
+    if (file.size > 10 * 1024 * 1024) {
+        showToast('File size exceeds 10MB limit', 'error');
+        return;
+    }
+
+    if (file.type !== 'application/pdf') {
+        showToast('Please upload a PDF file', 'error');
+        return;
+    }
+
+    resetUI();
+    showLoadingSpinner();
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const typedarray = new Uint8Array(e.target.result);
+        loadPDF(typedarray);
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// PDF Processing
+async function loadPDF(data) {
     try {
-        showToast('Sending message...', 'info');
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        showToast('Message sent successfully!');
-        contactForm.reset();
-        contactModal.style.display = 'none';
-        document.body.style.overflow = 'auto';
+        currentPdf = await pdfjsLib.getDocument(data).promise;
+        totalPages = currentPdf.numPages;
+        updateFileInfo();
+        extractTextFromPage(1);
     } catch (error) {
-        showToast('Failed to send message. Please try again.', 'error');
-    }
-});
-
-// Enhanced drag and drop functionality
-const uploadLabel = document.querySelector('.upload-label');
-let isDragging = false;
-
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    uploadLabel.addEventListener(eventName, preventDefaults, false);
-    document.body.addEventListener(eventName, preventDefaults, false);
-});
-
-function preventDefaults(e) {
-    e.preventDefault();
-    e.stopPropagation();
-}
-
-['dragenter', 'dragover'].forEach(eventName => {
-    uploadLabel.addEventListener(eventName, highlight, false);
-    document.body.addEventListener(eventName, () => {
-        if (!isDragging) {
-            isDragging = true;
-            uploadLabel.classList.add('highlight');
-        }
-    }, false);
-});
-
-['dragleave', 'drop'].forEach(eventName => {
-    uploadLabel.addEventListener(eventName, unhighlight, false);
-    document.body.addEventListener(eventName, () => {
-        isDragging = false;
-        uploadLabel.classList.remove('highlight');
-    }, false);
-});
-
-function highlight(e) {
-    uploadLabel.classList.add('highlight');
-}
-
-function unhighlight(e) {
-    uploadLabel.classList.remove('highlight');
-}
-
-// Enhanced file handling
-uploadLabel.addEventListener('drop', handleDrop, false);
-
-function handleDrop(e) {
-    const dt = e.dataTransfer;
-    const files = dt.files;
-
-    if (files.length > 0) {
-        handleFileSelect(files[0]);
+        hideLoadingSpinner();
+        showToast('Error loading PDF: ' + error.message, 'error');
     }
 }
 
-// Improved toast notifications
-function showToast(message, type = 'success') {
+async function extractTextFromPage(pageNum) {
+    try {
+        const page = await currentPdf.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        
+        extractedText = textContent.items
+            .map(item => item.str)
+            .join(' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        outputText.value = extractedText;
+        updatePageCounter();
+        showResultSection();
+        hideLoadingSpinner();
+        
+        // Enable/disable navigation buttons
+        prevPageBtn.disabled = pageNum === 1;
+        nextPageBtn.disabled = pageNum === totalPages;
+        
+    } catch (error) {
+        hideLoadingSpinner();
+        showToast('Error extracting text: ' + error.message, 'error');
+    }
+}
+
+// UI Updates
+function updateFileInfo() {
+    document.querySelector('.result-section').style.display = 'block';
+    fileInfo.innerHTML = `
+        <i class="fas fa-file-pdf"></i>
+        <span>PDF Document (${totalPages} ${totalPages === 1 ? 'page' : 'pages'})</span>
+    `;
+}
+
+function updatePageCounter() {
+    pageCounter.textContent = `Page ${currentPage} of ${totalPages}`;
+}
+
+function showResultSection() {
+    document.querySelector('.result-section').style.display = 'block';
+}
+
+function resetUI() {
+    outputText.value = '';
+    currentPage = 1;
+    document.querySelector('.result-section').style.display = 'none';
+    progressBar.style.display = 'none';
+    progressText.textContent = '';
+}
+
+// Loading Spinner
+function showLoadingSpinner() {
+    loadingSpinner.style.display = 'flex';
+}
+
+function hideLoadingSpinner() {
+    loadingSpinner.style.display = 'none';
+}
+
+// Toast Notifications
+function showToast(message, type = 'info') {
     toast.textContent = message;
-    toast.className = `toast toast-${type} show`;
+    toast.className = `toast show toast-${type}`;
     setTimeout(() => {
         toast.classList.remove('show');
     }, 3000);
 }
 
-// Enhanced file size formatting
-function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-// Improved file validation
-function validateFile(file) {
-    if (!SUPPORTED_TYPES.includes(file.type)) {
-        throw new Error('Please select a PDF file.');
-    }
-    if (file.size > MAX_FILE_SIZE) {
-        throw new Error('File size exceeds 10MB limit.');
-    }
-}
-
-// Enhanced file selection handling
-fileInput.addEventListener('change', (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        handleFileSelect(file);
-    }
-});
-
-async function handleFileSelect(file) {
-    if (isProcessing) {
-        showToast('Please wait for the current conversion to finish.', 'warning');
-        return;
-    }
-
-    try {
-        validateFile(file);
-        isProcessing = true;
-        updateUIForProcessing(file);
-        const text = await convertPdfToText(file);
-        outputText.value = text;
-        showToast('PDF converted successfully!');
-    } catch (error) {
-        outputText.value = '';
-        showToast(error.message || 'Error converting PDF.', 'error');
-        console.error('Error:', error);
-    } finally {
-        isProcessing = false;
-        updateUIAfterProcessing();
-    }
-}
-
-function updateUIForProcessing(file) {
-    fileInfo.innerHTML = `
-        <i class="fas fa-file-pdf"></i>
-        <span>${file.name}</span>
-        <span class="file-size">${formatFileSize(file.size)}</span>
-    `;
-    fileInfo.style.display = 'flex';
-    outputText.value = 'Converting PDF to text...';
-    progressBar.style.display = 'block';
-    progressText.style.display = 'block';
-    progress.style.width = '0%';
-    pageCounter.style.display = 'none';
-}
-
-function updateUIAfterProcessing() {
-    setTimeout(() => {
-        progressBar.style.display = 'none';
-        progressText.style.display = 'none';
-    }, 1000);
-}
-
-// Improved PDF to text conversion
-async function convertPdfToText(file) {
-    try {
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ ...PDF_OPTIONS, data: arrayBuffer }).promise;
-        currentPdfDocument = pdf;
-        const totalPages = pdf.numPages;
-        let text = '';
-
-        pageCounter.textContent = `0/${totalPages} pages`;
-        pageCounter.style.display = 'block';
-
-        for (let i = 1; i <= totalPages; i++) {
-            const page = await pdf.getPage(i);
-            const content = await page.getTextContent();
-            const pageText = content.items
-                .map(item => ({
-                    text: item.str,
-                    x: Math.round(item.transform[4]),
-                    y: Math.round(item.transform[5])
-                }))
-                .sort((a, b) => b.y - a.y || a.x - b.x)
-                .map(item => item.text)
-                .join(' ');
-
-            text += `Page ${i}\n${pageText}\n\n`;
-            
-            // Update progress
-            const progressPercent = (i / totalPages) * 100;
-            progress.style.width = `${progressPercent}%`;
-            progressText.textContent = `Converting page ${i} of ${totalPages}`;
-            pageCounter.textContent = `${i}/${totalPages} pages`;
-
-            // Allow UI to update
-            await new Promise(resolve => setTimeout(resolve, 0));
-        }
-
-        return text.trim();
-    } finally {
-        if (currentPdfDocument) {
-            currentPdfDocument.destroy();
-            currentPdfDocument = null;
-        }
-    }
-}
-
-// Enhanced copy functionality
-copyButton.addEventListener('click', async () => {
+// Text Operations
+function copyText() {
     if (!outputText.value) {
-        showToast('No text to copy.', 'error');
+        showToast('No text to copy', 'warning');
         return;
     }
     
-    try {
-        await navigator.clipboard.writeText(outputText.value);
-        showToast('Text copied to clipboard!');
-        
-        const icon = copyButton.querySelector('i');
-        const span = copyButton.querySelector('span');
-        icon.className = 'fas fa-check';
-        span.textContent = 'Copied!';
-        
-        setTimeout(() => {
-            icon.className = 'fas fa-copy';
-            span.textContent = 'Copy Text';
-        }, 2000);
-    } catch (err) {
-        console.error('Failed to copy text:', err);
-        showToast('Failed to copy text.', 'error');
-    }
-});
+    navigator.clipboard.writeText(outputText.value)
+        .then(() => showToast('Text copied to clipboard', 'success'))
+        .catch(() => showToast('Failed to copy text', 'error'));
+}
 
-// Improved download functionality
-downloadButton.addEventListener('click', () => {
+function downloadText(format = 'txt') {
     if (!outputText.value) {
-        showToast('No text to download.', 'error');
+        showToast('No text to download', 'warning');
+        return;
+    }
+
+    let content = outputText.value;
+    let mimeType = 'text/plain';
+    let extension = format;
+
+    switch (format) {
+        case 'doc':
+            content = `<html><body>${content.replace(/\n/g, '<br>')}</body></html>`;
+            mimeType = 'application/msword';
+            break;
+        case 'md':
+            // Add basic markdown formatting
+            content = `# PDF Text Extract\n\n${content}`;
+            mimeType = 'text/markdown';
+            break;
+    }
+
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `extracted-text.${extension}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast(`Text downloaded as ${extension.toUpperCase()}`, 'success');
+}
+
+function countWords() {
+    const text = outputText.value.trim();
+    if (!text) {
+        showToast('No text to count', 'warning');
         return;
     }
     
-    try {
-        const blob = new Blob([outputText.value], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        const fileName = fileInfo.querySelector('span')?.textContent || 'converted-text';
-        
-        a.href = url;
-        a.download = `${fileName.replace('.pdf', '')}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        showToast('Text file downloaded!');
-    } catch (error) {
-        showToast('Failed to download text.', 'error');
-        console.error('Download error:', error);
+    const wordCount = text.split(/\s+/).length;
+    const charCount = text.length;
+    showToast(`Words: ${wordCount} | Characters: ${charCount}`, 'info');
+}
+
+// Text Size Controls
+function adjustFontSize(delta) {
+    fontSize = Math.max(8, Math.min(24, fontSize + delta));
+    outputText.style.fontSize = `${fontSize}px`;
+}
+
+// Event Listeners
+fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.classList.add('drag-over');
+});
+
+dropzone.addEventListener('dragleave', () => {
+    dropzone.classList.remove('drag-over');
+});
+
+dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('drag-over');
+    handleFile(e.dataTransfer.files[0]);
+});
+
+copyButton.addEventListener('click', copyText);
+downloadButton.addEventListener('click', () => downloadText('txt'));
+clearButton.addEventListener('click', resetUI);
+contactLink.addEventListener('click', () => contactModal.style.display = 'block');
+modalClose.addEventListener('click', () => contactModal.style.display = 'none');
+themeSwitch.addEventListener('click', toggleTheme);
+
+prevPageBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
+        extractTextFromPage(currentPage);
     }
 });
 
-// Enhanced clear functionality
-clearButton.addEventListener('click', () => {
-    if (!outputText.value && !fileInfo.style.display) {
-        showToast('Nothing to clear.', 'error');
-        return;
+nextPageBtn.addEventListener('click', () => {
+    if (currentPage < totalPages) {
+        currentPage++;
+        extractTextFromPage(currentPage);
     }
-    
-    outputText.value = '';
-    fileInfo.style.display = 'none';
-    pageCounter.style.display = 'none';
-    fileInput.value = '';
-    showToast('Cleared successfully!');
+});
+
+zoomInBtn.addEventListener('click', () => adjustFontSize(2));
+zoomOutBtn.addEventListener('click', () => adjustFontSize(-2));
+wordCountBtn.addEventListener('click', countWords);
+
+// Export format handling
+document.querySelectorAll('.dropdown-content button').forEach(button => {
+    button.addEventListener('click', () => {
+        downloadText(button.dataset.format);
+    });
+});
+
+contactForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    // Here you would typically handle the form submission
+    showToast('Message sent successfully!', 'success');
+    contactModal.style.display = 'none';
+    contactForm.reset();
+});
+
+// Close modal when clicking outside
+window.addEventListener('click', (e) => {
+    if (e.target === contactModal) {
+        contactModal.style.display = 'none';
+    }
+});
+
+// Handle keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey || e.metaKey) {
+        switch(e.key) {
+            case 'c':
+                if (document.activeElement !== outputText) {
+                    e.preventDefault();
+                    copyText();
+                }
+                break;
+            case 's':
+                e.preventDefault();
+                downloadText('txt');
+                break;
+            case '=':
+            case '+':
+                e.preventDefault();
+                adjustFontSize(2);
+                break;
+            case '-':
+                e.preventDefault();
+                adjustFontSize(-2);
+                break;
+        }
+    }
 }); 

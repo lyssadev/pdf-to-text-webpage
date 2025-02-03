@@ -4,100 +4,397 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF to Text Converter</title>
+    <!-- Modern UI Libraries -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
     <link rel="stylesheet" href="styles.css">
     <!-- Include PDF.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <!-- Add Font Awesome for better icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Add Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Add AOS library for scroll animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Add Tippy.js for tooltips -->
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
 </head>
-<body>
+<body class="font-inter">
+    <!-- Quick Actions Bar -->
+    <div class="quick-actions-bar">
+        <div class="theme-toggle">
+            <button id="theme-switch" class="theme-switch-button" data-tippy-content="Toggle Dark Mode">
+                <i class="fas fa-moon dark-icon"></i>
+                <i class="fas fa-sun light-icon"></i>
+            </button>
+        </div>
+        <div class="quick-shortcuts">
+            <button class="shortcut-button" data-tippy-content="Keyboard Shortcuts (Ctrl + /)">
+                <i class="fas fa-keyboard"></i>
+            </button>
+            <button class="shortcut-button" data-tippy-content="Save Preferences">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </div>
+
     <div class="container">
-        <header>
-            <h1>PDF to Text Converter</h1>
-            <p>Transform your PDF documents into editable text instantly</p>
+        <header class="animate__animated animate__fadeIn">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h1>PDF to Text Converter</h1>
+            </div>
+            <p class="subtitle">Transform your PDF documents into editable text instantly</p>
             <div class="features">
-                <span><i class="fas fa-lock"></i> Secure & Private</span>
-                <span><i class="fas fa-bolt"></i> Instant Conversion</span>
-                <span><i class="fas fa-cloud-upload-alt"></i> No Upload Required</span>
+                <span data-aos="fade-up" data-aos-delay="100">
+                    <i class="fas fa-lock"></i> 
+                    <div class="feature-text">
+                        <strong>Secure & Private</strong>
+                        <small>Local processing only</small>
+                    </div>
+                </span>
+                <span data-aos="fade-up" data-aos-delay="200">
+                    <i class="fas fa-bolt"></i> 
+                    <div class="feature-text">
+                        <strong>Instant Conversion</strong>
+                        <small>No waiting time</small>
+                    </div>
+                </span>
+                <span data-aos="fade-up" data-aos-delay="300">
+                    <i class="fas fa-cloud-upload-alt"></i> 
+                    <div class="feature-text">
+                        <strong>No Upload Required</strong>
+                        <small>Process offline</small>
+                    </div>
+                </span>
             </div>
         </header>
 
         <main>
-            <div class="upload-section">
-                <label for="pdf-file" class="upload-label">
-                    <i class="fas fa-file-pdf upload-icon"></i>
-                    <span class="upload-text">Choose a PDF file or drag it here</span>
-                    <span class="upload-hint">Maximum file size: 10MB</span>
-                </label>
-                <input type="file" id="pdf-file" accept=".pdf" class="file-input">
-            </div>
-
-            <div class="progress-container">
-                <div class="progress-bar" id="progress-bar">
-                    <div class="progress" id="progress"></div>
+            <div class="upload-section" data-aos="fade-up">
+                <div class="dropzone" id="dropzone">
+                    <div class="upload-progress-circle" id="upload-progress">
+                        <svg class="progress-ring" width="120" height="120">
+                            <circle class="progress-ring-circle" stroke="currentColor" stroke-width="4" fill="transparent" r="52" cx="60" cy="60"/>
+                        </svg>
+                        <div class="progress-content">
+                            <i class="fas fa-file-pdf upload-icon"></i>
+                            <span class="upload-text">Choose a PDF file or drag it here</span>
+                            <span class="upload-hint">Maximum file size: 10MB</span>
+                        </div>
+                    </div>
+                    <input type="file" id="pdf-file" accept=".pdf" class="file-input">
                 </div>
-                <div class="progress-text" id="progress-text"></div>
+                <div class="supported-formats">
+                    <span class="format-badge"><i class="fas fa-check-circle"></i> PDF Files</span>
+                    <span class="format-badge"><i class="fas fa-info-circle"></i> Up to 10MB</span>
+                    <span class="format-badge"><i class="fas fa-shield-alt"></i> Secure Processing</span>
+                </div>
             </div>
 
-            <div class="result-section">
+            <div class="how-it-works-section" data-aos="fade-up">
+                <div class="section-header">
+                    <h2>How It Works</h2>
+                    <p class="section-subtitle">Simple, secure, and efficient conversion process</p>
+                </div>
+                <div class="steps-container">
+                    <div class="step" data-aos="fade-up" data-aos-delay="100">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-icon">
+                                <i class="fas fa-file-upload"></i>
+                            </div>
+                            <h3>Upload Your PDF</h3>
+                            <p>Select or drag & drop your PDF file. Files are processed locally - no server upload needed.</p>
+                            <div class="step-features">
+                                <span><i class="fas fa-check"></i> Drag & Drop</span>
+                                <span><i class="fas fa-check"></i> Local Processing</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="connection-line"></div>
+                    <div class="step" data-aos="fade-up" data-aos-delay="200">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-icon">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <h3>Automatic Processing</h3>
+                            <p>Our advanced PDF.js engine extracts text while maintaining the document's structure.</p>
+                            <div class="step-features">
+                                <span><i class="fas fa-check"></i> Smart Extraction</span>
+                                <span><i class="fas fa-check"></i> Layout Preservation</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="connection-line"></div>
+                    <div class="step" data-aos="fade-up" data-aos-delay="300">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-icon">
+                                <i class="fas fa-magic"></i>
+                            </div>
+                            <h3>Text Extraction</h3>
+                            <p>The text is extracted page by page, preserving formatting and layout where possible.</p>
+                            <div class="step-features">
+                                <span><i class="fas fa-check"></i> Multi-page Support</span>
+                                <span><i class="fas fa-check"></i> Format Retention</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="connection-line"></div>
+                    <div class="step" data-aos="fade-up" data-aos-delay="400">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <div class="step-icon">
+                                <i class="fas fa-download"></i>
+                            </div>
+                            <h3>Export & Use</h3>
+                            <p>Download the extracted text in various formats or copy directly to your clipboard.</p>
+                            <div class="step-features">
+                                <span><i class="fas fa-check"></i> Multiple Formats</span>
+                                <span><i class="fas fa-check"></i> Quick Copy</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tech-details" data-aos="fade-up">
+                    <div class="section-header">
+                        <h3>Technical Details</h3>
+                        <p class="section-subtitle">Advanced features for better conversion</p>
+                    </div>
+                    <div class="tech-grid">
+                        <div class="tech-item">
+                            <div class="tech-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="tech-content">
+                                <h4>Client-Side Processing</h4>
+                                <p>All conversion happens in your browser using PDF.js, ensuring your files never leave your device.</p>
+                                <div class="tech-badges">
+                                    <span>Secure</span>
+                                    <span>Private</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <div class="tech-content">
+                                <h4>Format Support</h4>
+                                <p>Supports text extraction from searchable PDFs, including multi-page documents up to 10MB.</p>
+                                <div class="tech-badges">
+                                    <span>Multi-page</span>
+                                    <span>Searchable PDF</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">
+                                <i class="fas fa-file-export"></i>
+                            </div>
+                            <div class="tech-content">
+                                <h4>Export Options</h4>
+                                <p>Export as plain text (.txt), Word document (.doc), or markdown (.md) with formatting preserved.</p>
+                                <div class="tech-badges">
+                                    <span>Multiple Formats</span>
+                                    <span>Formatting</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">
+                                <i class="fas fa-universal-access"></i>
+                            </div>
+                            <div class="tech-content">
+                                <h4>Accessibility</h4>
+                                <p>Keyboard shortcuts, screen reader support, and adjustable text size for better accessibility.</p>
+                                <div class="tech-badges">
+                                    <span>Screen Reader</span>
+                                    <span>Keyboard</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-section" data-aos="fade-up">
                 <div class="result-header">
                     <div class="file-info" id="file-info"></div>
-                    <div class="page-counter" id="page-counter"></div>
+                    <div class="page-navigation">
+                        <button id="prev-page" class="nav-button" disabled data-tippy-content="Previous Page">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="page-counter" id="page-counter"></div>
+                        <button id="next-page" class="nav-button" disabled data-tippy-content="Next Page">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
                 </div>
                 
-                <textarea id="output-text" readonly placeholder="Your converted text will appear here..."></textarea>
+                <div class="editor-container">
+                    <div class="editor-toolbar">
+                        <div class="toolbar-group">
+                            <button class="tool-button" id="zoom-in" data-tippy-content="Zoom In (Ctrl +)">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button class="tool-button" id="zoom-out" data-tippy-content="Zoom Out (Ctrl -)">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button class="tool-button" id="word-count" data-tippy-content="Word Count">
+                                <i class="fas fa-calculator"></i>
+                            </button>
+                        </div>
+                        <div class="toolbar-group">
+                            <button class="tool-button" id="toggle-wrap" data-tippy-content="Toggle Word Wrap">
+                                <i class="fas fa-align-left"></i>
+                            </button>
+                            <button class="tool-button" id="toggle-numbers" data-tippy-content="Toggle Line Numbers">
+                                <i class="fas fa-list-ol"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="output-text" readonly placeholder="Your converted text will appear here..."></textarea>
+                </div>
                 
                 <div class="button-group">
-                    <button id="copy-button" class="button">
+                    <button id="copy-button" class="button primary-button" data-tippy-content="Copy to Clipboard (Ctrl + C)">
                         <i class="fas fa-copy"></i>
                         <span>Copy Text</span>
                     </button>
-                    <button id="download-button" class="button">
+                    <button id="download-button" class="button primary-button" data-tippy-content="Download as TXT (Ctrl + S)">
                         <i class="fas fa-download"></i>
                         <span>Download Text</span>
                     </button>
-                    <button id="clear-button" class="button button-secondary">
+                    <div class="dropdown">
+                        <button id="export-button" class="button primary-button" data-tippy-content="Export Options">
+                            <i class="fas fa-file-export"></i>
+                            <span>Export As</span>
+                        </button>
+                        <div class="dropdown-content">
+                            <button data-format="txt" class="dropdown-item">
+                                <i class="fas fa-file-alt"></i>
+                                Plain Text (.txt)
+                            </button>
+                            <button data-format="doc" class="dropdown-item">
+                                <i class="fas fa-file-word"></i>
+                                Word Document (.doc)
+                            </button>
+                            <button data-format="md" class="dropdown-item">
+                                <i class="fas fa-file-code"></i>
+                                Markdown (.md)
+                            </button>
+                        </div>
+                    </div>
+                    <button id="clear-button" class="button secondary-button" data-tippy-content="Clear All">
                         <i class="fas fa-trash"></i>
                         <span>Clear</span>
                     </button>
                 </div>
             </div>
-
-            <div class="features-section">
-                <h2>Why Choose Our PDF to Text Converter?</h2>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <i class="fas fa-shield-alt"></i>
-                        <h3>100% Secure</h3>
-                        <p>All processing happens in your browser. No files are uploaded to any server.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <h3>Lightning Fast</h3>
-                        <p>Convert your PDFs to text in seconds with our optimized engine.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-check-circle"></i>
-                        <h3>High Accuracy</h3>
-                        <p>Advanced PDF.js technology ensures accurate text extraction.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-mobile-alt"></i>
-                        <h3>Mobile Friendly</h3>
-                        <p>Works perfectly on all devices, from phones to desktops.</p>
-                    </div>
-                </div>
-            </div>
         </main>
 
         <footer>
-            <p>© 2025 PDF to Text Converter • Secure & Private • No Upload Required</p>
-            <div class="footer-links">
-                <a href="#" class="footer-link">Privacy Policy</a>
-                <a href="#" class="footer-link">Terms of Use</a>
-                <a href="#" id="contact-link" class="footer-link">Contact</a>
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="brand-logo">
+                        <i class="fas fa-file-alt"></i>
+                        <h3>PDF to Text Converter</h3>
+                    </div>
+                    <p>Making document conversion simple and secure</p>
+                    <div class="social-links">
+                        <a href="#" data-tippy-content="Follow us on Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" data-tippy-content="Star us on GitHub"><i class="fab fa-github"></i></a>
+                        <a href="#" data-tippy-content="Connect on LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-section">
+                        <h4>Product</h4>
+                        <a href="#">Features</a>
+                        <a href="#">How it Works</a>
+                        <a href="#">Security</a>
+                        <a href="#">Updates</a>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Support</h4>
+                        <a href="#">FAQ</a>
+                        <a href="#">Documentation</a>
+                        <a href="#" id="contact-link">Contact</a>
+                        <a href="#">Help Center</a>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Legal</h4>
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms of Use</a>
+                        <a href="#">Cookie Policy</a>
+                        <a href="#">GDPR</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 PDF to Text Converter • All rights reserved</p>
+                <div class="footer-badges">
+                    <span class="badge"><i class="fas fa-shield-alt"></i> Secure</span>
+                    <span class="badge"><i class="fas fa-lock"></i> Private</span>
+                    <span class="badge"><i class="fas fa-bolt"></i> Fast</span>
+                </div>
             </div>
         </footer>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div class="modal-backdrop" id="shortcuts-modal">
+        <div class="modal shortcuts-modal">
+            <button class="modal-close" id="shortcuts-close">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2>Keyboard Shortcuts</h2>
+            <div class="shortcuts-grid">
+                <div class="shortcut-item">
+                    <div class="shortcut-keys">
+                        <kbd>Ctrl</kbd> + <kbd>C</kbd>
+                    </div>
+                    <span>Copy Text</span>
+                </div>
+                <div class="shortcut-item">
+                    <div class="shortcut-keys">
+                        <kbd>Ctrl</kbd> + <kbd>S</kbd>
+                    </div>
+                    <span>Save Text</span>
+                </div>
+                <div class="shortcut-item">
+                    <div class="shortcut-keys">
+                        <kbd>Ctrl</kbd> + <kbd>+</kbd>
+                    </div>
+                    <span>Zoom In</span>
+                </div>
+                <div class="shortcut-item">
+                    <div class="shortcut-keys">
+                        <kbd>Ctrl</kbd> + <kbd>-</kbd>
+                    </div>
+                    <span>Zoom Out</span>
+                </div>
+                <div class="shortcut-item">
+                    <div class="shortcut-keys">
+                        <kbd>←</kbd> <kbd>→</kbd>
+                    </div>
+                    <span>Navigate Pages</span>
+                </div>
+                <div class="shortcut-item">
+                    <div class="shortcut-keys">
+                        <kbd>Ctrl</kbd> + <kbd>/</kbd>
+                    </div>
+                    <span>Show Shortcuts</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Contact Modal -->
@@ -106,25 +403,40 @@
             <button class="modal-close" id="modal-close">
                 <i class="fas fa-times"></i>
             </button>
-            <h2>Contact Us</h2>
+            <div class="modal-header">
+                <h2>Contact Us</h2>
+                <p>We'd love to hear from you. Send us a message!</p>
+            </div>
             <form class="contact-form" id="contact-form">
                 <div class="form-group">
                     <label for="name">Name</label>
-                    <input type="text" id="name" name="name" required placeholder="Your name">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="name" name="name" required placeholder="Your name">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required placeholder="your@email.com">
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" name="email" required placeholder="your@email.com">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="subject">Subject</label>
-                    <input type="text" id="subject" name="subject" required placeholder="How can we help?">
+                    <div class="input-group">
+                        <i class="fas fa-heading"></i>
+                        <input type="text" id="subject" name="subject" required placeholder="How can we help?">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="message">Message</label>
-                    <textarea id="message" name="message" required placeholder="Your message here..."></textarea>
+                    <div class="input-group">
+                        <i class="fas fa-comment-alt"></i>
+                        <textarea id="message" name="message" required placeholder="Your message here..."></textarea>
+                    </div>
                 </div>
-                <button type="submit" class="button">
+                <button type="submit" class="button primary-button">
                     <i class="fas fa-paper-plane"></i>
                     <span>Send Message</span>
                 </button>
@@ -133,6 +445,18 @@
     </div>
 
     <div id="toast" class="toast"></div>
+    
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" class="loading-spinner">
+        <div class="spinner-content">
+            <div class="spinner"></div>
+            <p>Processing your PDF...</p>
+            <div class="processing-status">Extracting text from page <span id="current-page">1</span></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="script.js"></script>
 </body>
 </html> 
